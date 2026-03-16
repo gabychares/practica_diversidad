@@ -1,4 +1,1 @@
-#Este repositorio es con colaboradores, mis colaboradoras van a ser Andy y Pao :)
-#
-
-
+read.csv("02_rawdata/diversidad - Hoja 1.csv")
