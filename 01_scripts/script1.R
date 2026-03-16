@@ -11,11 +11,6 @@ install.packages("iNEXT")
 library(iNEXT)
 
 
-## 4.2 Diversidad alfa
-
-sp_matrix <- datos1 %>% column_to_rownames("sitios") # convierte la tabla en matriz, para que los sitios pasen a ser nombres de las filas
-sp_matrix
-
 
 
 
