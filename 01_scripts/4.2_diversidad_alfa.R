@@ -46,6 +46,7 @@ sitio7 <-divalf (diveridad [7,])
 Diversidad_alfa <- rbind(sitio1,sitio2,sitio3, sitio4,sitio5,sitio6,sitio7)
 columnas <- c("riqueza","H", "simp", "invs", "pielou")
 colnames(Diversidad_alfa) <- columnas
+
 #Guardar esta tabla en la carpeta de resultados 
 write.csv (Diversidad_alfa, "03_results/Diversidad_alfa.csv")
 
