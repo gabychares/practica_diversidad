@@ -15,21 +15,21 @@ library(iNEXT)
 divalf <- function (x){
   x -> abun
   as.numeric(abun) -> abun
-  sum(abun) -> riqueza
-  p <- (abun/riqueza)
+  sum(abun) -> totalind
+  p <- (abun/totalind)
   p <- p[p>0]
   H <- -(sum)(p*log(p)) #Calcula el índice de Shannon
-  iS <- function(abun, riqueza){
-    (abun / riqueza)^2 ->suma
+  iS <- function(abun, totalind){
+    (abun / totalind)^2 ->suma
     sum(suma)-> simp
     } # Calcula el índice de Simpson
-  simp <- iS (abun, riqueza) #Investigué y tenía que como "llamar la función" con los argumentos que ocupaba
+  simp <- iS (abun, totalind) #Investigué y tenía que como "llamar la función" con los argumentos que ocupaba
   
   ins <- function(simp){
     1/simp -> invs 
   } #Calcula el inverso de Simpson
   invs <- ins(simp)
-  pielou <- (1/log(riqueza)) #Calcula el índice de Pielou
+  pielou <- (1/log(totalind)) #Calcula el índice de Pielou
   
   Chao1 <- function(x){
     sum(x==1) -> singleton
@@ -37,10 +37,13 @@ divalf <- function (x){
 
     (singleton)^2 -> f1
     (doubleton)*2 -> f2
-    riqueza + (f1/f2) -> CHAO1
+    totalind + (f1/f2) -> CHAO1
   }
   CHAO1 <- Chao1(x) 
-return (c(riqueza,H, simp, invs, pielou, (as.integer(round(CHAO1)))))
+ suma <-(which(x>=1))
+ riqueza <- sum(length(suma))
+          
+return (c(totalind,H, simp, invs, riqueza, pielou, (as.integer(round(CHAO1)))))
 }
 
 # Calcular los diferentes índices para cada sitio
@@ -55,7 +58,7 @@ sitio7 <-divalf (abundancias$Sitio.7)
 #Crear una tabla en donde se muestren los diferentes sirios con sus respectivos índices
 
 Diversidad_alfa <- rbind(sitio1,sitio2,sitio3, sitio4,sitio5,sitio6,sitio7)
-columnas <- c("Riqueza","Shannon", "Simpson", "Inv. Simpson", "Pielou", "CHAO1")
+columnas <- c("totalind","Shannon", "Simpson", "Inv. Simpson", "Riqueza", "Pielou", "CHAO1")
 colnames(Diversidad_alfa) <- columnas
 
 #Guardar esta tabla en la carpeta de resultados 
