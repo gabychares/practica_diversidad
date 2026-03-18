@@ -40,16 +40,6 @@ abundancias <- read.csv("02_rawdata/abundancias - Hoja 2.csv")
 
 ```
 
-### Cargar las librerías requeridas
-
-```{r}
-
-library(tidyverse)
-library(vegan)
-library(iNEXT)
-
-```
-
 ### Función para calcular los distintos índices de la diversidad alfa.
 
 ```{r Función para calcular la diversidad alfa}
