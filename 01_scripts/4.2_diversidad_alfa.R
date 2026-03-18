@@ -11,7 +11,7 @@ install.packages("iNEXT")
 library(iNEXT)
 
 # Diversidad alfa 
-Results <- c()
+
 divalf <- function (x){
   x -> abun
   as.numeric(abun) -> abun
