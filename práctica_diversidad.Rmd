@@ -4,11 +4,27 @@ author: "Andrea Melissa Luna Pérez, Gabriela Chavez Resendiz, Paola Martinez Ga
 date: "2026-03-18"
 output: html_document
 ---
+
+### Liga al repositorio.
+
+<https://github.com/gabychares/practica_diversidad.git>
+
 ### Distribución de tareas.
+
 ```{r tareas, echo = FALSE}
+Gabriela <- ("Desarrollé la función para calcular los diferentes índices de la diversidad alfa, cree la tabla resumen de estos índices, respondí las preguntas del inciso A de diversidad Alfa y la 14 del inciso E, le di formato al Rmarkdown, cree el README")
 
+Andrea <- ("Subí los datos, calculé los incisos de la diversidad beta, contesté las preguntas del inciso de diversidad beta y las preguntas 15 y 16 de inciso E ")
+
+Paola <- ("Cree otra tabla con las abundancias, hice las gráficas de curva de rarefacción y curvas de rango abundancia, contesté las preguntas de estos dos incisos ")
+
+tabladetareas <- cbind (c(Gabriela, Andrea, Paola))
+rows <- (c("Gabriela","Andrea","Paola"))
+cols <- ("Tareas realizadas")
+rownames(tabladetareas) <- rows
+colnames (tabladetareas) <- cols
+print (tabladetareas)
 ```
-
 
 ### Cargar la base de datos.
 
@@ -17,7 +33,9 @@ output: html_document
 abundancias <- read.csv("02_rawdata/abundancias - Hoja 2.csv")
 
 ```
+
 ### Cargar las librerías requeridas
+
 ```{r paquetes, eval = FALSE}
 
 library(tidyverse)
@@ -25,7 +43,9 @@ library(vegan)
 library(iNEXT)
 
 ```
+
 ## **4.2 Diversidad alfa**
+
 ### Función para calcular los distintos índices de la diversidad alfa.
 
 ```{r Función para calcular la diversidad alfa}
@@ -103,19 +123,16 @@ write.csv (Diversidad_alfa, "03_results/Diversidad_alfa.csv")
 ## **4.5 Diversidad beta**
 
 ## **5.Preguntas de Análisis y Reflexión**
+
 #### A. Diversidad alfa — comparación entre índices
-**a) Compara los valores de Shannon y Simpson entre todos los sitios. ¿Por qué pueden dar órdenes de ranking distintas?**
-Dado que la distribución de especies en cada sitio es diferente, así mismo estos índices toman valores distintos para realizar su cálculo, pues los resultados se interpretan de una manera diferente.
 
-- **¿Qué información adicional aporta cada uno?**
-Mientras que el índice de Shannon mide la equidad de especies, tomando en cuenta la dominancia de las especies, si no hay ninguna especie que domine este índice llegara a su mínimo, por otro lado, el índice de Simpson lo que da como resultado es la probabilidad de que se tomen dos individuos y estos pertenezcan a una misma especie, hablando así también de dominancia, si hay una especie que tenga una mayor dominancia esta probabilidad aumentará. 
+**a) Compara los valores de Shannon y Simpson entre todos los sitios. ¿Por qué pueden dar órdenes de ranking distintas?** Dado que la distribución de especies en cada sitio es diferente, así mismo estos índices toman valores distintos para realizar su cálculo, pues los resultados se interpretan de una manera diferente.
 
+-   **¿Qué información adicional aporta cada uno?** Mientras que el índice de Shannon mide la equidad de especies, tomando en cuenta la dominancia de las especies, si no hay ninguna especie que domine este índice llegara a su mínimo, por otro lado, el índice de Simpson lo que da como resultado es la probabilidad de que se tomen dos individuos y estos pertenezcan a una misma especie, hablando así también de dominancia, si hay una especie que tenga una mayor dominancia esta probabilidad aumentará.
 
-**b) ¿Qué sitio presenta la mayor equitatividad según Pielou? ¿Podría tener mayor equitatividad pero menor riqueza que otro sitio Explica con un ejemplo numérico concreto**
-El sitio 2 con un índice de Pielou 0.2749076, mientras que tiene una riqueza de 38, por el contrario el sitio 6, representa el sitio con una mayor riqueza, pero teniendo un índice de Pielou de 0.2201046, dado que los datos biológicos no son ecuaciones, es decir no siempre se va a obtener el resultado esperado. Obteniendo así los dos extremos, en donde el sitio con menor riqueza tiene una mayor equitatividad según Pielou, y el sitio con mayor riqueza una menor equitatividad según Pielou. 
+**b) ¿Qué sitio presenta la mayor equitatividad según Pielou? ¿Podría tener mayor equitatividad pero menor riqueza que otro sitio Explica con un ejemplo numérico concreto** El sitio 2 con un índice de Pielou 0.2749076, mientras que tiene una riqueza de 38, por el contrario el sitio 6, representa el sitio con una mayor riqueza, pero teniendo un índice de Pielou de 0.2201046, dado que los datos biológicos no son ecuaciones, es decir no siempre se va a obtener el resultado esperado. Obteniendo así los dos extremos, en donde el sitio con menor riqueza tiene una mayor equitatividad según Pielou, y el sitio con mayor riqueza una menor equitatividad según Pielou.
 
-**c) Compara la riqueza observada (S) con el estimado de Chao1. ¿En qué sitio la brecha es mayor? ¿Qué implicación tiene esto para el diseño de un muestreo real?**
-La diferencia entre la riqueza observada y la esperada la cual se estimó con el índice de CHA01 no tiene una gran diferencia, incluso hay algunos sitios en el que la esperada es la misma a la observada. Este índice representa una gran implicación en un muestreo real, dado que en un muestreo real la probabilidad de que se realice un muestreo completamente a todas las especies, el realizar el cálculo de este índice permite e estimado de las especies reales, sin embargo, dado que es una estimación, no se puede asegurar la existencia de las especies esperadas. 
+**c) Compara la riqueza observada (S) con el estimado de Chao1. ¿En qué sitio la brecha es mayor? ¿Qué implicación tiene esto para el diseño de un muestreo real?** La diferencia entre la riqueza observada y la esperada la cual se estimó con el índice de CHA01 no tiene una gran diferencia, incluso hay algunos sitios en el que la esperada es la misma a la observada. Este índice representa una gran implicación en un muestreo real, dado que en un muestreo real la probabilidad de que se realice un muestreo completamente a todas las especies, el realizar el cálculo de este índice permite e estimado de las especies reales, sin embargo, dado que es una estimación, no se puede asegurar la existencia de las especies esperadas.
 
 **d) Si duplicaras el número de individuos muestreados en el sitio con menor riqueza, ¿Esperarías que Chao1 cambiará significativamente? Justifica ecológica y estadísticamente.**
 
