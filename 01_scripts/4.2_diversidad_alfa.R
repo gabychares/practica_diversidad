@@ -11,7 +11,7 @@ install.packages("iNEXT")
 library(iNEXT)
 
 # Diversidad alfa 
-Results <- c()
+
 divalf <- function (x){
   x -> abun
   as.numeric(abun) -> abun
@@ -32,15 +32,15 @@ divalf <- function (x){
   pielou <- (1/log(riqueza)) #Calcula el índice de Pielou
   
   Chao1 <- function(x){
-    which(x==1) -> singleton
-    which(x==2) -> doubleton
-    sum(singleton) -> sumsin
-    (sumsin)^2 -> f1
-    sum(doubleton)*2 -> f2
+    sum(x==1) -> singleton
+    sum(x==2) -> doubleton
+
+    (singleton)^2 -> f1
+    (doubleton)*2 -> f2
     riqueza + (f1/f2) -> CHAO1
   }
-  CHAO1 <- Chao1(x)
-return (c(riqueza,H, simp, invs, pielou, CHAO1))
+  CHAO1 <- Chao1(x) 
+return (c(riqueza,H, simp, invs, pielou, (as.integer(round(CHAO1)))))
 }
 
 # Calcular los diferentes índices para cada sitio
