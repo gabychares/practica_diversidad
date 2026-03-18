@@ -7,6 +7,10 @@ output: html_document
 
 ### Liga al repositorio.
 
+```{r}
+
+```
+
 <https://github.com/gabychares/practica_diversidad.git>
 
 ### Distribución de tareas.
@@ -53,21 +57,21 @@ library(iNEXT)
 divalf <- function (x){
   x -> abun
   as.numeric(abun) -> abun
-  sum(abun) -> riqueza
-  p <- (abun/riqueza)
+  sum(abun) -> totalind
+  p <- (abun/totalind)
   p <- p[p>0]
   H <- -(sum)(p*log(p)) #Calcula el índice de Shannon
-  iS <- function(abun, riqueza){
-    (abun / riqueza)^2 ->suma
+  iS <- function(abun, totalind){
+    (abun / totalind)^2 ->suma
     sum(suma)-> simp
     } # Calcula el índice de Simpson
-  simp <- iS (abun, riqueza) #Investigué y tenía que como "llamar la función" con los argumentos que ocupaba
+  simp <- iS (abun, totalind) #Investigué y tenía que como "llamar la función" con los argumentos que ocupaba
   
   ins <- function(simp){
     1/simp -> invs 
   } #Calcula el inverso de Simpson
   invs <- ins(simp)
-  pielou <- (1/log(riqueza)) #Calcula el índice de Pielou
+  pielou <- (1/log(totalind)) #Calcula el índice de Pielou
   
   Chao1 <- function(x){
     sum(x==1) -> singleton
@@ -75,11 +79,13 @@ divalf <- function (x){
 
     (singleton)^2 -> f1
     (doubleton)*2 -> f2
-    riqueza + (f1/f2) -> CHAO1
+    totalind + (f1/f2) -> CHAO1
   }
   CHAO1 <- Chao1(x) 
-return (c(riqueza,H, simp, invs, pielou, (as.integer(round(CHAO1)))))
-  
+ suma <-(which(x>=1))
+ riqueza <- sum(length(suma))
+          
+return (c(totalind,H, simp, invs, riqueza, pielou, (as.integer(round(CHAO1)))))
 }
 ```
 
@@ -101,7 +107,7 @@ sitio7 <-divalf (abundancias$Sitio.7)
 
 ```{r tabla }
 Diversidad_alfa <- rbind(sitio1,sitio2,sitio3, sitio4,sitio5,sitio6,sitio7)
-columnas <- c("Riqueza","Shannon", "Simpson", "Inv. Simpson", "Pielou", "CHAO1")
+columnas <- c("totalind","Shannon", "Simpson", "Inv. Simpson", "Riqueza", "Pielou", "CHAO1")
 colnames(Diversidad_alfa) <- columnas
 ```
 
@@ -161,7 +167,7 @@ Grafica_curva_rarefacción <- ggiNEXT(resultados_cr, type = 1) +
 Grafica_curva_rarefacción
 ```
 
-### Guardar grafica en la carpeta de resultados 
+### Guardar grafica en la carpeta de resultados
 
 ```{r}
 ggsave(filename = "03_results/curva_rarefaccion.png", 
@@ -223,13 +229,19 @@ grafica_rango_abundancia <- ggplot(rank_data, aes(x = rango, y = log10(prop), co
 grafica_rango_abundancia
 ```
 
-### Guardar grafica en la carpeta de resultados 
+### Guardar grafica en la carpeta de resultados
 
 ```{r}
 ggsave("03_results/grafica_rango_abundancia.png", grafica_rango_abundancia, width = 10, height = 7)
 ```
 
 ## **4.5 Diversidad beta**
+
+### Cargar los datos
+
+```{r}
+abundancias_Hoja_1 <- read.csv("02_rawdata/abundancias - Hoja 1.csv")
+```
 
 ### Cargar librerias
 
@@ -275,6 +287,9 @@ heatmap_beta<- function (indices, titulo){
 
 h1j <- heatmap_beta(m_d_j, "Disimilitud de Jaccard")
 h2b <- heatmap_beta(m_d_bc, "Disimilitud de Bray-Curtis")
+
+print (h1j)
+print (h2b)
 ```
 
 ### Guardar en carpeta de resultados
@@ -284,7 +299,6 @@ ggsave ("03_results/heatmap_jaccard.png", plot= h1j, width = 9, height = 10)
 
 ggsave ("03_results/heatmap_bray-curtis.png", plot= h2b, width = 9, height = 10)
 ```
-
 
 ## **5.Preguntas de Análisis y Reflexión**
 
@@ -320,10 +334,7 @@ Seleccionaria un tamaño de muestra estandarizado de 41 individuos, que represen
 
 **h) Identifica la forma general de cada curva (log-normal, geométrica, etc.). ¿Qué modelo ecológico subyace a cada forma? ¿Qué mecanismos comunitarios podrían explicarla?**
 
-Los sitios 1, 5 y 6 muestran una forma de S suave característica del modelo Log-Normal, lo que sugiere comunidades maduras con un reparto de nichos complejo y alta estabilidad. 
-Los sitios 2 y 7 presentan una caída más abrupta al inicio, asemejándose al modelo de Serie Geométrica, donde una especie dominante ocupa una fracción desproporcionada de los recursos. 
-El sitio 4 representa el caso extremo de dominancia absoluta. 
-Las formas más horizontales indican comunidades con una repartición más equitativa, mientras que las pendientes pronunciadas son típicas de ambientes perturbados o en etapas tempranas de sucesión donde la competencia favorece a unas pocas especies.
+Los sitios 1, 5 y 6 muestran una forma de S suave característica del modelo Log-Normal, lo que sugiere comunidades maduras con un reparto de nichos complejo y alta estabilidad. Los sitios 2 y 7 presentan una caída más abrupta al inicio, asemejándose al modelo de Serie Geométrica, donde una especie dominante ocupa una fracción desproporcionada de los recursos. El sitio 4 representa el caso extremo de dominancia absoluta. Las formas más horizontales indican comunidades con una repartición más equitativa, mientras que las pendientes pronunciadas son típicas de ambientes perturbados o en etapas tempranas de sucesión donde la competencia favorece a unas pocas especies.
 
 **i) ¿En qué sitio la especie más dominante representa la mayor fracción de individuos?¿Cómo se relaciona ese resultado con el índice de Simpson?**
 
@@ -331,31 +342,31 @@ La mayor fracción de individuos representados por una sola especie ocurre en el
 
 **j) Imagina que en un monitoreo de largo plazo una curva log-normal se convierte en geométrica. ¿Qué perturbación ecológica podría explicarlo?**
 
-Este cambio estructural refleja una ruptura en el equilibrio de la comunidad, como un evento de contaminación química, deforestación o el impacto de una especie invasora agresiva. 
+Este cambio estructural refleja una ruptura en el equilibrio de la comunidad, como un evento de contaminación química, deforestación o el impacto de una especie invasora agresiva.
 
 ### D. Diversidad beta
 
-**k) Analiza la matriz de Bray-Curtis. ¿Qué par de sitios es más diferente? ¿Es el mismo par más diferente según Jaccard? Si no coinciden, ¿a qué se debe?** 
+**k) Analiza la matriz de Bray-Curtis. ¿Qué par de sitios es más diferente? ¿Es el mismo par más diferente según Jaccard? Si no coinciden, ¿a qué se debe?**
 
-El par más diferente según la matriz de Bray-Curtis es el sitio 2 y el sitio 4, ya que tienen el valor de 1, el cual en este índice significa que son completamente diferentes.
-Al analizar la matriz de Jaccard, se observa que el mismo par (sitio 2 y sitio 4) presenta el mismo valor de disimilitud (valor = 1), por lo que ambos índices coinciden.
+El par más diferente según la matriz de Bray-Curtis es el sitio 2 y el sitio 4, ya que tienen el valor de 1, el cual en este índice significa que son completamente diferentes. Al analizar la matriz de Jaccard, se observa que el mismo par (sitio 2 y sitio 4) presenta el mismo valor de disimilitud (valor = 1), por lo que ambos índices coinciden.
 
 Con estos índices, sabemos que este par de sitios, no comparten especies (Jaccard) y además presentan diferencias máximas en sus abundancias (Bray-Curtis).
 
 **l) ¿Qué componentes del recambio beta (reemplazo vs. anidamiento) podrían explicar los patrones que observas? (Pista: investiga el paquete betapart en R.)**
 
-En la matriz se observan diferentes patrones los cuales indican que el reemplazo de especies es un componente que explica a los valores de disimilitud, los cuales son aquellos que no comparten especies, como por ejemplo el sitio 2 y el sitio 4, lo que indica que tienen comunidades muy diferentes. 
+En la matriz se observan diferentes patrones los cuales indican que el reemplazo de especies es un componente que explica a los valores de disimilitud, los cuales son aquellos que no comparten especies, como por ejemplo el sitio 2 y el sitio 4, lo que indica que tienen comunidades muy diferentes.
 
 **m) Si estos sitios representaran puntos a lo largo de un gradiente altitudinal, ¿qué patrón de beta-diversidad esperarías según la teoría del dominio medio (mid-domain effect)? ¿Coincide con tus resultados?**
 
 En los valores obtenidos de las matrices se obtuvieron valores altos y bajos de disimilitud, lo que nos dice que hay sitios que son muy diferentes y otros son más similares. Con respecto a la teoría del dominio medio, esperaría que la diversidad beta aumente hacia los extremos y disminuya en las zonas intermedias, ya que en estas zonas del medio son aquellos donde son más parecidos y en los extremos donde hay más diferencia entre los sitios.
 
 ### E. Síntesis e interpretación ecológica
+
 **n) Construye una narrativa ecológica coherente: tomando todos los índices calculados, describe qué tipo de comunidad representa cada sitio (p. ej. perturbada, madura, oligoespéciosa) y propón una hipótesis sobre el proceso ecológico que generó esas diferencias**
 
-Sitio 1, sitio 5, sitio 7,: se asemejan a una comunidad madura, si bien no son las que mayor riqueza presentan, los valores de equidad son altos y una riqueza no tan pobre, esto nos sugiere que en estos sitios diferentes poblaciones de especies están coexistiendo, sin la presencia de dominancia por alguna especie, logrando mantener la comunidad en equilibrio. 
+Sitio 1, sitio 5, sitio 7,: se asemejan a una comunidad madura, si bien no son las que mayor riqueza presentan, los valores de equidad son altos y una riqueza no tan pobre, esto nos sugiere que en estos sitios diferentes poblaciones de especies están coexistiendo, sin la presencia de dominancia por alguna especie, logrando mantener la comunidad en equilibrio.
 
-Sitio 2 y Sitio 3: comunidades oligoespecíficas, estas son pobres en especies, pero se encuentran con los índices más altos de equidad, lo que nos habla de que no hay una especie dominante, esta comunidad al igual que el sitio 4, pueden tener como limitación para el desarrollo de más especies las condiciones ambientales y las capacidades que tienen que tener estas especies para poder subsistir. 
+Sitio 2 y Sitio 3: comunidades oligoespecíficas, estas son pobres en especies, pero se encuentran con los índices más altos de equidad, lo que nos habla de que no hay una especie dominante, esta comunidad al igual que el sitio 4, pueden tener como limitación para el desarrollo de más especies las condiciones ambientales y las capacidades que tienen que tener estas especies para poder subsistir.
 
 Sitio 4: Comunidad con dominancia de una especie, esto se puede ver determinado por las condiciones de esa comunidad, puede ser que se trata de climas muy extremos o con condiciones muy adversas que eso permite la dominancia de la especie capaz de tolerar estas circunstancias.
 
@@ -363,13 +374,8 @@ Sitio 6: Comunidad perturbada, a pesar de que hay una alta riqueza. la equidad e
 
 **o) Si tuvieras que escoger un solo índice para monitorear la salud de estas comunidades a lo largo del tiempo, ¿cuál elegirías y por qué? ¿Cuáles serían sus limitaciones?**
 
-El índice de shannon, ya que toma en cuenta dos componentes: la riqueza y la abundancia, lo cual permite detectar cambios en la pérdida o ganancia de especies, como en la dominancia de una especie sobre otra.
-Entre sus limitaciones es que no distingue cuáles son las especies que cambian, además de no detectar cambios en especies que son poco abundantes.
-
+El índice de shannon, ya que toma en cuenta dos componentes: la riqueza y la abundancia, lo cual permite detectar cambios en la pérdida o ganancia de especies, como en la dominancia de una especie sobre otra. Entre sus limitaciones es que no distingue cuáles son las especies que cambian, además de no detectar cambios en especies que son poco abundantes.
 
 **p) Propón un diseño de muestreo para un estudio real que permita calcular diversidad alfa y beta de manera robusta. Especifica: número de sitios, réplicas, tamaño mínimo de muestra y justificación estadística.**
 
 Para un estudio real, sería necesario tomar muestras de 10 a 15 sitios con 3 réplicas por sitio, lo cual nos permitiria calcular la variación interna de cada sitio (diversidad alfa), además de hacer comparaciones entre todos estos sitios muestreados para calcular la diversidad beta. Además para un tamaño mínimo de muestra, podría ser definido por el punto donde una curva de acumulación de especies llegue a la asíntota.
-
-
-
