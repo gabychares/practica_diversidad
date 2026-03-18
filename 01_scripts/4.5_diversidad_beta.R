@@ -36,9 +36,9 @@ h2b <- heatmap_beta(m_d_bc, "Disimilitud de Bray-Curtis")
 
 # Guardar en carpeta de resultados
 
-ggsave ("03_results/heatmap_jaccard.png", plot= h1j, width = 9, height = 10)
+ggsave ("03_results/h1j.png", plot= h1j, width = 9, height = 10)
 
-ggsave ("03_results/heatmap_bray-curtis.png", plot= h2b, width = 9, height = 10)
+ggsave ("03_results/h2b.png", plot= h2b, width = 9, height = 10)
 
 
 

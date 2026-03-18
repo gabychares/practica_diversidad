@@ -127,9 +127,7 @@ write.csv (Diversidad_alfa, "03_results/Diversidad_alfa.csv")
 ### Cargar librerias
 
 ```{r}
-install.packages("iNEXT")
 library(iNEXT)
-install.packages("ggplot2")
 library(ggplot2)
 ```
 
@@ -182,9 +180,7 @@ ggsave(filename = "03_results/curva_rarefaccion.png",
 ### Cargar librerias
 
 ```{r}
-install.packages("tidyverse")
 library(tidyverse)
-install.packages("ggplot2")
 library(ggplot2)
 ```
 
@@ -295,9 +291,9 @@ print (h2b)
 ### Guardar en carpeta de resultados
 
 ```{r}
-ggsave ("03_results/heatmap_jaccard.png", plot= h1j, width = 9, height = 10)
+ggsave ("03_results/h1j.png", plot= h1j, width = 9, height = 10)
 
-ggsave ("03_results/heatmap_bray-curtis.png", plot= h2b, width = 9, height = 10)
+ggsave ("03_results/h2b.png", plot= h2b, width = 9, height = 10)
 ```
 
 ## **5.Preguntas de Análisis y Reflexión**
