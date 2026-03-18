@@ -1,0 +1,6 @@
+---
+title: "README"
+output: html_document
+date: "2026-03-18"
+---
+En este Rproject se evaluaron distintos sitios, en donde se calcularon las diversidades alfa y beta, así como curvas de rarefacción y rango-abundancia. El principal objetivo de este es que se pueda reproducir todo lo que aquí se realizó, así mismo, que las funciones y gráficas sean útiles para otros datos pero que cuenten con la misma estructura. 
