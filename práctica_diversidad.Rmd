@@ -26,6 +26,8 @@ colnames (tabladetareas) <- cols
 print (tabladetareas)
 ```
 
+## **4.2 Diversidad alfa**
+
 ### Cargar la base de datos.
 
 ```{r Cargar los datos}
@@ -36,15 +38,13 @@ abundancias <- read.csv("02_rawdata/abundancias - Hoja 2.csv")
 
 ### Cargar las librerías requeridas
 
-```{r paquetes, eval = FALSE}
+```{r}
 
 library(tidyverse)
 library(vegan)
 library(iNEXT)
 
 ```
-
-## **4.2 Diversidad alfa**
 
 ### Función para calcular los distintos índices de la diversidad alfa.
 
@@ -118,7 +118,116 @@ write.csv (Diversidad_alfa, "03_results/Diversidad_alfa.csv")
 
 ## **4.3 Curvas de rarefacción**
 
+### Cargar librerias
+
+```{r}
+install.packages("iNEXT")
+library(iNEXT)
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+### Cargar los datos
+
+```{r}
+cr_matriz <- read.csv("02_rawdata/abundancias - Hoja 2.csv", row.names = 1)
+# Usamos row.names = 1 para que los colores sean los nombres
+```
+
+### Convertir la matriz a una lista (formato para iNEXT)
+
+```{r}
+cr_lista <- as.list(cr_matriz)
+```
+
+### Calcular iNEXT
+
+```{r}
+resultados_cr <- iNEXT(cr_lista, q = 0, datatype = "abundance")
+# q = 0 calcula la riqueza de especies
+# datatype = "abundance" porque tienes conteos de individuos
+```
+
+### Graficar
+
+```{r}
+# type = 1 es la gráfica de Rarefacción (Individuos vs Riqueza)
+Grafica_curva_rarefacción <- ggiNEXT(resultados_cr, type = 1) +
+  scale_color_brewer(palette = "Accent")+
+  labs(title = "Curvas de rarefacción e interpolación",
+       x = "Número de individuos muestreados",
+       y = "Riqueza de especies (q = 0)") +
+  theme_classic(base_size = 12)
+Grafica_curva_rarefacción
+```
+
+### Guardar grafica en la carpeta de resultados 
+
+```{r}
+ggsave(filename = "03_results/curva_rarefaccion.png", 
+       plot = Grafica_curva_rarefacción, 
+       width = 8, 
+       height = 6, 
+       dpi = 300)
+```
+
 ## **4.4 Gráficas de rango-abundancia**
+
+### Cargar librerias
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+### Cargar los datos
+
+```{r}
+datos_ra <- read.csv("02_rawdata/abundancias - Hoja 1.csv")
+```
+
+### Ajustar los datos para que R los pueda leer.
+
+```{r}
+#  %>% para continuar y pasar al siguiente paso
+rank_data <- datos_ra %>%
+  # Pasa de tabla ancha a tabla larga, pone todas las columnas una debajo de otra.
+  pivot_longer(cols = -sitios, names_to = "especie", values_to = "n") %>%
+  # Quita las especies que tienen cero en ese sitio
+  filter(n > 0) %>%
+  # Agrupa por sitio para calcular rangos por separado
+  group_by(sitios) %>%
+  # Calculamos proporción y posición en el ranking
+  #mutate()-Crea columnas nuevas
+  mutate(prop = n / sum(n), # Divide la abundancia de cada especie entre el total del sitio (abundancia relativa)
+         rango = rank(-prop, ties.method = "first")) %>% #Ordena las especies de mayor a menor abundancia, el #1 es la más abundante.
+  ungroup() # Rompe los grupos para que R pueda volver a trabajar con la tabla completa
+```
+
+### Graficar
+
+```{r}
+grafica_rango_abundancia <- ggplot(rank_data, aes(x = rango, y = log10(prop), color = as.factor(sitios))) +
+  #as.factor - convierte los números de los sitios en "etiquetas" para que R les asigne colores distintos.
+  geom_line(linewidth = 0.9) + geom_point(size = 2) +
+  scale_color_brewer(palette = "Accent") +
+  labs(title = "Gráficas de rango-abundancia",
+       x = "Rango de especie",
+       y = "log10 (Abundancia relativa)") +
+  theme_classic(base_size = 12) +
+  facet_wrap(~sitios, scales = "free_x") # Divide la gráfica en 7, uno para cada sitio
+#scales = "free_x" permite que si un sitio tiene 10 especies y otro solo 5, el eje X se ajuste al tamaño de cada uno.
+
+grafica_rango_abundancia
+```
+
+### Guardar grafica en la carpeta de resultados 
+
+```{r}
+ggsave("03_results/grafica_rango_abundancia.png", grafica_rango_abundancia, width = 10, height = 7)
+```
 
 ## **4.5 Diversidad beta**
 
@@ -137,3 +246,36 @@ write.csv (Diversidad_alfa, "03_results/Diversidad_alfa.csv")
 **d) Si duplicaras el número de individuos muestreados en el sitio con menor riqueza, ¿Esperarías que Chao1 cambiará significativamente? Justifica ecológica y estadísticamente.**
 
 No necesariamente, dado que CHAO1 lo que toma en cuenta es la presencia de especies raras (singletons y doubletons), el hecho de que se agreguen más individuos no quiere decir que estos van a tener un impacto en la riqueza, dado que si se duplicarán el número de individuos así tal cual se muestreo, los individuos pertenecen a la misma especie, para que pueda tener un cambio significativo se tendría que aumentar o disminuir la cantidad de singletons y/o doubletons
+
+#### B. Curvas de rarefacción
+
+**e) ¿Cuál sitio alcanza la asíntota más rápidamente? ¿Qué te dice eso sobre la estructura de la comunidad?**
+
+El sitio 4 es el que alcanza la asíntota de forma casi inmediata, esto indica una diversidad extremadamente baja o nula. En este caso la asíntota está en el valor de 1 indicando que la comunidad esta totalmente dominada por una sola especie.
+
+**f) Dos sitios pueden tener la misma riqueza observada pero curvas con pendientes muy distintas. ¿Cómo interpretas esa diferencia en términos de abundancias relativas?**
+
+Aunque dos sitios puedan presentar la misma riqueza observada al final del muestreo, una diferencia en sus pendientes indica variaciones críticas en sus abundancias. Una pendiente más pronunciada, como en el Sitio 6, refleja una comunidad con mayor equidad, donde las especies tienen abundancias similares y una pendiente suave sugiere una alta dominancia.
+
+**g) ¿A qué tamaño de muestra estandarizado compararías los sitios? Justifica tu elección y calcula la riqueza rarefactada para todos los sitios a ese nivel.**
+
+Seleccionaria un tamaño de muestra estandarizado de 41 individuos, que representa el valor mínimo común entre todos los sitios analizados, esto permite nivelar el sesgo del conteo para evaluar la riqueza bajo las mismas condiciones de probabilidad, al realizar este ajuste, se puede determinar la riqueza rarefactada real de cada localidad.
+
+#### C. Gráficas de rango-abundancia
+
+**h) Identifica la forma general de cada curva (log-normal, geométrica, etc.). ¿Qué modelo ecológico subyace a cada forma? ¿Qué mecanismos comunitarios podrían explicarla?**
+
+Los sitios 1, 5 y 6 muestran una forma de S suave característica del modelo Log-Normal, lo que sugiere comunidades maduras con un reparto de nichos complejo y alta estabilidad. 
+Los sitios 2 y 7 presentan una caída más abrupta al inicio, asemejándose al modelo de Serie Geométrica, donde una especie dominante ocupa una fracción desproporcionada de los recursos. 
+El sitio 4 representa el caso extremo de dominancia absoluta. 
+Las formas más horizontales indican comunidades con una repartición más equitativa, mientras que las pendientes pronunciadas son típicas de ambientes perturbados o en etapas tempranas de sucesión donde la competencia favorece a unas pocas especies.
+
+**i) ¿En qué sitio la especie más dominante representa la mayor fracción de individuos?¿Cómo se relaciona ese resultado con el índice de Simpson?**
+
+La mayor fracción de individuos representados por una sola especie ocurre en el Sitio 4, donde la dominancia es total, seguido por el Sitio 2, cuya curva inicia en el punto más alto del eje Y. Este resultado tiene una correlación directa con el Índice de Simpson, ya que este parámetro cuantifica la probabilidad de que dos individuos seleccionados al azar pertenezcan a la misma especie. Por lo tanto, los sitios con curvas que inician con valores muy altos de abundancia relativa tendrán los valores más altos de Simpson, y los que esten representados por una sola especie tienen un valor igual a 1.
+
+**j) Imagina que en un monitoreo de largo plazo una curva log-normal se convierte en geométrica. ¿Qué perturbación ecológica podría explicarlo?**
+
+Este cambio estructural refleja una ruptura en el equilibrio de la comunidad, como un evento de contaminación química, deforestación o el impacto de una especie invasora agresiva. 
+
+
