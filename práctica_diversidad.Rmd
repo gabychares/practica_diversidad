@@ -4,27 +4,119 @@ author: "Andrea Melissa Luna Pérez, Gabriela Chavez Resendiz, Paola Martinez Ga
 date: "2026-03-18"
 output: html_document
 ---
+### Distribución de tareas.
+```{r tareas, echo = FALSE}
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+### Cargar la base de datos.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r Cargar los datos}
 
-```{r cars}
-summary(cars)
+abundancias <- read.csv("02_rawdata/abundancias - Hoja 2.csv")
+
+```
+### Cargar las librerías requeridas
+```{r paquetes, eval = FALSE}
+
+library(tidyverse)
+library(vegan)
+library(iNEXT)
+
+```
+## **4.2 Diversidad alfa**
+### Función para calcular los distintos índices de la diversidad alfa.
+
+```{r Función para calcular la diversidad alfa}
+
+divalf <- function (x){
+  x -> abun
+  as.numeric(abun) -> abun
+  sum(abun) -> riqueza
+  p <- (abun/riqueza)
+  p <- p[p>0]
+  H <- -(sum)(p*log(p)) #Calcula el índice de Shannon
+  iS <- function(abun, riqueza){
+    (abun / riqueza)^2 ->suma
+    sum(suma)-> simp
+    } # Calcula el índice de Simpson
+  simp <- iS (abun, riqueza) #Investigué y tenía que como "llamar la función" con los argumentos que ocupaba
+  
+  ins <- function(simp){
+    1/simp -> invs 
+  } #Calcula el inverso de Simpson
+  invs <- ins(simp)
+  pielou <- (1/log(riqueza)) #Calcula el índice de Pielou
+  
+  Chao1 <- function(x){
+    sum(x==1) -> singleton
+    sum(x==2) -> doubleton
+
+    (singleton)^2 -> f1
+    (doubleton)*2 -> f2
+    riqueza + (f1/f2) -> CHAO1
+  }
+  CHAO1 <- Chao1(x) 
+return (c(riqueza,H, simp, invs, pielou, (as.integer(round(CHAO1)))))
+  
+}
 ```
 
-## Including Plots
+### Calcular los diferentes índices para los sitios muestreados
 
-You can also embed plots, for example:
+```{r Calcular los diferentes índices para los sitios muestreados}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+sitio1 <-divalf (abundancias$Sitio.1)
+sitio2 <-divalf (abundancias$Sitio.2)
+sitio3 <-divalf (abundancias$Sitio.3)
+sitio4 <-divalf (abundancias$Sitio.4)
+sitio5 <-divalf (abundancias$Sitio.5)
+sitio6 <-divalf (abundancias$Sitio.6)
+sitio7 <-divalf (abundancias$Sitio.7)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Crear la tabla en la que se arrojaran los resultados.
+
+```{r tabla }
+Diversidad_alfa <- rbind(sitio1,sitio2,sitio3, sitio4,sitio5,sitio6,sitio7)
+columnas <- c("Riqueza","Shannon", "Simpson", "Inv. Simpson", "Pielou", "CHAO1")
+colnames(Diversidad_alfa) <- columnas
+```
+
+```{r table, echo = FALSE}
+print (Diversidad_alfa)
+```
+
+### Guardar la tabla
+
+```{r}
+write.csv (Diversidad_alfa, "03_results/Diversidad_alfa.csv")
+
+```
+
+## **4.3 Curvas de rarefacción**
+
+## **4.4 Gráficas de rango-abundancia**
+
+## **4.5 Diversidad beta**
+
+## **5.Preguntas de Análisis y Reflexión**
+#### A. Diversidad alfa — comparación entre índices
+**a) Compara los valores de Shannon y Simpson entre todos los sitios. ¿Por qué pueden dar órdenes de ranking distintas?**
+Dado que la distribución de especies en cada sitio es diferente, así mismo estos índices toman valores distintos para realizar su cálculo, pues los resultados se interpretan de una manera diferente.
+
+- **¿Qué información adicional aporta cada uno?**
+Mientras que el índice de Shannon mide la equidad de especies, tomando en cuenta la dominancia de las especies, si no hay ninguna especie que domine este índice llegara a su mínimo, por otro lado, el índice de Simpson lo que da como resultado es la probabilidad de que se tomen dos individuos y estos pertenezcan a una misma especie, hablando así también de dominancia, si hay una especie que tenga una mayor dominancia esta probabilidad aumentará. 
+
+
+**b) ¿Qué sitio presenta la mayor equitatividad según Pielou? ¿Podría tener mayor equitatividad pero menor riqueza que otro sitio Explica con un ejemplo numérico concreto**
+El sitio 2 con un índice de Pielou 0.2749076, mientras que tiene una riqueza de 38, por el contrario el sitio 6, representa el sitio con una mayor riqueza, pero teniendo un índice de Pielou de 0.2201046, dado que los datos biológicos no son ecuaciones, es decir no siempre se va a obtener el resultado esperado. Obteniendo así los dos extremos, en donde el sitio con menor riqueza tiene una mayor equitatividad según Pielou, y el sitio con mayor riqueza una menor equitatividad según Pielou. 
+
+**c) Compara la riqueza observada (S) con el estimado de Chao1. ¿En qué sitio la brecha es mayor? ¿Qué implicación tiene esto para el diseño de un muestreo real?**
+La diferencia entre la riqueza observada y la esperada la cual se estimó con el índice de CHA01 no tiene una gran diferencia, incluso hay algunos sitios en el que la esperada es la misma a la observada. Este índice representa una gran implicación en un muestreo real, dado que en un muestreo real la probabilidad de que se realice un muestreo completamente a todas las especies, el realizar el cálculo de este índice permite e estimado de las especies reales, sin embargo, dado que es una estimación, no se puede asegurar la existencia de las especies esperadas. 
+
+**d) Si duplicaras el número de individuos muestreados en el sitio con menor riqueza, ¿Esperarías que Chao1 cambiará significativamente? Justifica ecológica y estadísticamente.**
+
+No necesariamente, dado que CHAO1 lo que toma en cuenta es la presencia de especies raras (singletons y doubletons), el hecho de que se agreguen más individuos no quiere decir que estos van a tener un impacto en la riqueza, dado que si se duplicarán el número de individuos así tal cual se muestreo, los individuos pertenecen a la misma especie, para que pueda tener un cambio significativo se tendría que aumentar o disminuir la cantidad de singletons y/o doubletons
